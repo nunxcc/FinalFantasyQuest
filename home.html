@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Final Fantasy Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Complete PC &amp; Emulator Reference</div>
+  <h1>Final <span>Fantasy</span> Guide</h1>
+  <p class="header-sub">30 games · best version · score · playtime · sorted by playing order</p>
+</header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <div class="legend">
+    <span style="font-size:12px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;font-family:'Cinzel',serif">Platform:</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sky-blue)"></span> Steam / PC</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--lilac)"></span> Emulator only</span>
+    
+    <span style="margin-left:10px;font-size:12px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;font-family:'Cinzel',serif">Metascore:</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-excellent)"></span> 9+</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-good)"></span> 8+</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-ok)"></span> 7+</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-bad)"></span> &lt;7</span>
+    
+    <span style="margin-left:10px;font-size:12px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;font-family:'Cinzel',serif">Story time:</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-excellent)"></span> &lt;25h</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-good)"></span> 25–50h</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sc-bad)"></span> 50h+</span>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="q" placeholder="Search by name or version…" oninput="render()">
+    <select id="pf" onchange="render()">
+      <option value="">All platforms</option>
+      <option value="S">Steam / PC</option>
+      <option value="E">Emulator</option>
+    </select>
+    <select id="sf" onchange="render()">
+      <option value="0">Any metascore</option>
+      <option value="9">Metascore 9+</option>
+      <option value="8">Metascore 8+</option>
+      <option value="7">Metascore 7+</option>
+    </select>
+    <select id="tf" onchange="render()">
+      <option value="">Any length</option>
+      <option value="s">Short &lt; 25h</option>
+      <option value="m">Medium 25–50h</option>
+      <option value="l">Long 50h+</option>
+    </select>
+    <select id="sort" onchange="render()">
+      <option value="order">Sort: Playing Order</option>
+      <option value="score">Sort: Metascore</option>
+      <option value="main">Sort: Story Length</option>
+      <option value="name">Sort: Name</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Done</th>
+          <th>Game</th>
+          <th>Platform</th>
+          <th>Metascore</th>
+          <th>My Score</th>
+          <th>Story</th>
+          <th>100%</th>
+          <th>Best Version &amp; Notes</th>
+        </tr>
+      </thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+</div>
+
+<footer>
+  Playtime data from HowLongToBeat · Scores based on Metacritic aggregates · Guide as of 2025
+</footer>
+
+<script>
+var GAMES =[
+  {order:1,  name:"Final Fantasy I",              year:1987, plat:"S", score:7.5, main:18,  comp:36,  ver:"Pixel Remaster (Steam)",                note:"Add font restoration mod from Nexusmods for best look."},
+  {order:2,  name:"Final Fantasy II",             year:1988, plat:"S", score:6.5, main:25,  comp:41,  ver:"Pixel Remaster (Steam)",                note:"Weakest mainline entry. Unique leveling system worth trying once."},
+  {order:3,  name:"Final Fantasy III",            year:1990, plat:"S", score:7.5, main:28,  comp:48,  ver:"Pixel Remaster (Steam)",                note:"Skip the old 3D Steam port — Pixel Remaster is vastly better."},
+  {order:4,  name:"Final Fantasy IV",             year:1991, plat:"S", score:8.9, main:23,  comp:41,  ver:"Pixel Remaster (Steam)",                note:"Great story for its era. Solid entry point to classic FF."},
+  {order:5,  name:"Final Fantasy V",              year:1992, plat:"S", score:8.0, main:33,  comp:70,  ver:"Pixel Remaster (Steam)",                note:"Underrated gem. Best job system in the classic era."},
+  {order:6,  name:"Final Fantasy VI",             year:1994, plat:"S", score:9.2, main:35,  comp:64,  ver:"Pixel Remaster (Steam) + font mod",     note:"All-time great. Font mod from Nexusmods strongly recommended."},
+  {order:7,  name:"Final Fantasy Tactics",        year:1997, plat:"E", score:9.1, main:40,  comp:97,  ver:"PSP War of the Lions (PPSSPP)",         note:"Best translation + extra content. No official PC port exists."},
+  {order:8,  name:"Crisis Core: FF VII",          year:2007, plat:"S", score:8.3, main:19,  comp:81,  ver:"Crisis Core Reunion (Steam)",           note:"Play before Remake. Reunion has new VA, HD visuals, improved combat."},
+  {order:9,  name:"Final Fantasy VII Remake",     year:2020, plat:"S", score:8.9, main:34,  comp:90,  ver:"FF VII Remake Intergrade (Steam)",      note:"Play after Crisis Core. Includes Yuffie DLC. Modern reimagining of VII."},
+  {order:10, name:"Final Fantasy VII Rebirth",    year:2024, plat:"S", score:9.2, main:55,  comp:130, ver:"FF VII Rebirth (Steam)",                note:"PC release Jan 2025. Massive sequel to Remake. One of the best in years."},
+  {order:11, name:"Final Fantasy VIII",           year:1999, plat:"S", score:9.0, main:41,  comp:83,  ver:"FF VIII Remastered (Steam / GOG)",      note:"HD textures, widescreen, speed toggle. The only version worth playing on PC."},
+  {order:12, name:"Final Fantasy IX",             year:2000, plat:"S", score:9.4, main:40,  comp:80,  ver:"FF IX (Steam / GOG) + Moguri Mod",      note:"Highest-rated FF ever. Moguri Mod adds gorgeous HD backgrounds."},
+  {order:13, name:"Final Fantasy X / X-2",        year:2001, plat:"S", score:9.2, main:47,  comp:150, ver:"FFX / X-2 HD Remaster (Steam)",         note:"X (~47h) is a masterpiece; X-2 (~25h) is very different. Both in one purchase."},
+  {order:14, name:"Final Fantasy XI",             year:2002, plat:"S", score:8.5, main:109, comp:0,   ver:"FF XI Online (Steam)",                  note:"Still-active MMO. Low population but dedicated community. Sub required."},
+  {order:15, name:"FF Tactics Advance",           year:2003, plat:"E", score:8.3, main:47,  comp:115, ver:"GBA (mGBA emulator)",                   note:"No PC port. mGBA is the most accurate GBA emulator available."},
+  {order:16, name:"FF Crystal Chronicles",        year:2003, plat:"E", score:7.3, main:14,  comp:40,  ver:"GameCube (Dolphin emulator)",           note:"Steam remaster is poor. Play the original GCN version via Dolphin."},
+  {order:17, name:"Final Fantasy XII",            year:2006, plat:"S", score:9.2, main:60,  comp:130, ver:"FF XII: Zodiac Age (Steam)",            note:"Massive world, deep systems. Speed mode helps. One of the deepest FFs."},
+  {order:18, name:"FF XII: Revenant Wings",       year:2007, plat:"E", score:7.5, main:22,  comp:50,  ver:"DS (MelonDS emulator)",                 note:"Tactical spinoff sequel to XII. No PC port. MelonDS runs it cleanly."},
+  {order:19, name:"FF Tactics: War of the Lions", year:2007, plat:"E", score:9.0, main:40,  comp:97,  ver:"PSP (PPSSPP emulator)",                 note:"Definitive Tactics version with extra content. Same as entry #7."},
+  {order:20, name:"FF IV: The After Years",       year:2008, plat:"E", score:7.0, main:36,  comp:83,  ver:"PSP (PPSSPP emulator)",                 note:"Sequel to IV. PSP version is the best release — skip the mobile port."},
+  {order:21, name:"Final Fantasy XIII",           year:2009, plat:"S", score:8.3, main:48,  comp:106, ver:"FF XIII (Steam)",                       note:"Linear but polished. Add GeDoSaTo mod for proper resolution scaling."},
+  {order:22, name:"Final Fantasy XIII-2",         year:2011, plat:"S", score:7.8, main:30,  comp:75,  ver:"FF XIII-2 (Steam)",                     note:"Better received than XIII. All DLC included. Time-travel story."},
+  {order:23, name:"Final Fantasy Type-0",         year:2011, plat:"S", score:7.5, main:24,  comp:49,  ver:"Type-0 HD (Steam)",                     note:"Unique action RPG set in a war-torn world. HD remaster on Steam."},
+  {order:24, name:"FF XIV Online",                year:2013, plat:"S", score:9.2, main:300, comp:0,   ver:"FF XIV Online (Steam)",                 note:"Free trial to lv.60 incl. Heavensward. All expansions (A Realm Reborn → Dawntrail) ~300h+."},
+  {order:25, name:"Lightning Returns: FFXIII",    year:2013, plat:"S", score:7.3, main:36,  comp:67,  ver:"Lightning Returns (Steam)",             note:"Final XIII chapter. Unique time-limit gameplay. All DLC included."},
+  {order:26, name:"Final Fantasy XV",             year:2016, plat:"S", score:8.1, main:28,  comp:94,  ver:"FFXV Windows Edition (Steam)",          note:"Definitive version — best visuals, all DLC, mod support."},
+  {order:27, name:"World of Final Fantasy",       year:2016, plat:"S", score:7.8, main:30,  comp:80,  ver:"World of FF Maxima (Steam)",            note:"Maxima is the enhanced edition. Charming monster-collector spinoff."},
+  {order:28, name:"Stranger of Paradise",         year:2022, plat:"S", score:6.8, main:20,  comp:76,  ver:"Stranger of Paradise (Steam / Epic)",   note:"Weird Soulslike prequel to FF I. Chaotic but fun. All DLC included."},
+  {order:29, name:"Final Fantasy XVI",            year:2023, plat:"S", score:8.8, main:35,  comp:80,  ver:"FF XVI Complete Edition (Steam / Epic)", note:"PC Sept 2024. Both DLCs included. Dark fantasy, great action combat."},
+  {order:30, name:"Theatrhythm: Final Bar Line",  year:2023, plat:"E", score:8.5, main:20,  comp:200, ver:"Switch (Ryujinx emulator)",             note:"No PC port. 385 songs across the whole series. Completionist is endless."},
+];
+
+function scoreColor(s) {
+  if (s >= 9.0) return 'var(--sc-excellent)';
+  if (s >= 8.0) return 'var(--sc-good)';
+  if (s >= 7.0) return 'var(--sc-ok)';
+  return 'var(--sc-bad)';
+}
+
+function timeColor(h) {
+  if (h < 25)  return 'var(--sc-excellent)';
+  if (h < 50)  return 'var(--sc-good)';
+  return 'var(--sc-bad)';
+}
+
+function fmtTime(h) {
+  if (h <= 0)   return '<span style="color:var(--muted)">∞ MMO</span>';
+  if (h >= 250) return '<span style="color:var(--sc-bad)">300h+ MMO</span>';
+  return h + 'h';
+}
+
+function fmtComp(c) {
+  if (c <= 0)   return '<span style="color:var(--muted)">∞</span>';
+  if (c >= 200) return c + 'h+';
+  return c + 'h';
+}
+
+// Persist User Inputs
+function saveUserScore(gameName, val) {
+  var ud = JSON.parse(localStorage.getItem('ff_userData') || '{}');
+  if (!ud[gameName]) ud[gameName] = {};
+  ud[gameName].score = val;
+  localStorage.setItem('ff_userData', JSON.stringify(ud));
+}
+
+function toggleUserDone(gameName, isChecked) {
+  var ud = JSON.parse(localStorage.getItem('ff_userData') || '{}');
+  if (!ud[gameName]) ud[gameName] = {};
+  ud[gameName].done = isChecked;
+  localStorage.setItem('ff_userData', JSON.stringify(ud));
+  render(); // Refresh to update row styles and completion stats
+}
+
+function render() {
+  var q   = document.getElementById('q').value.toLowerCase();
+  var pf  = document.getElementById('pf').value;
+  var sf  = parseFloat(document.getElementById('sf').value) || 0;
+  var tf  = document.getElementById('tf').value;
+  var so  = document.getElementById('sort').value;
+
+  var data = GAMES.filter(function(g) {
+    if (q && g.name.toLowerCase().indexOf(q) < 0 && g.ver.toLowerCase().indexOf(q) < 0 && g.note.toLowerCase().indexOf(q) < 0) return false;
+    if (pf && g.plat !== pf) return false;
+    if (sf && g.score < sf)  return false;
+    if (tf === 's' && g.main >= 25)  return false;
+    if (tf === 'm' && (g.main < 25 || g.main >= 50)) return false;
+    if (tf === 'l' && g.main < 50)   return false;
+    return true;
+  });
+
+  data.sort(function(a, b) {
+    if (so === 'score') return b.score - a.score;
+    if (so === 'main')  return a.main - b.main;
+    if (so === 'name')  return a.name.localeCompare(b.name);
+    return a.order - b.order;
+  });
+
+  var ud = JSON.parse(localStorage.getItem('ff_userData') || '{}');
+
+  // Stats calculation
+  var totalH  = data.filter(function(g){return g.main < 250;}).reduce(function(s,g){return s+g.main;},0);
+  var avgScore = data.length ? (data.reduce(function(s,g){return s+g.score;},0)/data.length).toFixed(1) : '—';
+  var completedN = data.filter(function(g){ return ud[g.name] && ud[g.name].done; }).length;
+
+  document.getElementById('stats').innerHTML =
+    stat(completedN + '<span style="color:var(--muted); font-size:16px"> / ' + data.length + '</span>', 'Completed') +
+    stat(avgScore, 'Avg Meta') +
+    stat('~' + totalH + 'h', 'Min story hours');
+
+  if (!data.length) {
+    document.getElementById('tb').innerHTML = '<tr><td colspan="9" class="no-results">No games match your filters.</td></tr>';
+    return;
+  }
+
+  var rows = data.map(function(g, i) {
+    var sc = scoreColor(g.score);
+    var tc = timeColor(g.main);
+    var pct = Math.round(g.score / 10 * 100);
+    
+    // User Data
+    var gData = ud[g.name] || {};
+    var isDone = gData.done ? 'checked' : '';
+    var myScore = gData.score || '';
+    var doneClass = gData.done ? 'is-done' : '';
+
+    var platBadge = g.plat === 'S'
+      ? '<span class="badge badge-steam">Steam / PC</span>'
+      : '<span class="badge badge-emu">Emulator</span>';
+
+    var safeName = g.name.replace(/'/g, "\\'");
+
+    return '<tr class="' + doneClass + '">' +
+      '<td class="idx">' + (i + 1) + '</td>' +
+      '<td><input type="checkbox" class="done-cb" onchange="toggleUserDone(\'' + safeName + '\', this.checked)" ' + isDone + '></td>' +
+      '<td>' +
+        '<div class="game-name">' + g.name + '</div>' +
+        '<div class="game-year">' + g.year + '</div>' +
+      '</td>' +
+      '<td>' + platBadge + '</td>' +
+      '<td>' +
+        '<span class="score-num" style="color:' + sc + '">' + g.score + '</span>' +
+        '<div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" style="width:' + pct + '%;background:' + sc + '"></div></div></div>' +
+      '</td>' +
+      '<td><input type="number" class="my-score-in" step="0.1" min="0" max="10" placeholder="-" value="' + myScore + '" onchange="saveUserScore(\'' + safeName + '\', this.value)"></td>' +
+      '<td>' +
+        '<div class="time-main" style="color:' + tc + '">' + fmtTime(g.main) + '</div>' +
+      '</td>' +
+      '<td>' +
+        '<div class="time-comp">' + fmtComp(g.comp) + '</div>' +
+      '</td>' +
+      '<td>' +
+        '<div class="ver-name">' + g.ver + '</div>' +
+        '<div class="ver-note">' + g.note + '</div>' +
+      '</td>' +
+    '</tr>';
+  });
+
+  document.getElementById('tb').innerHTML = rows.join('');
+}
+
+function stat(val, label) {
+  return '<div class="stat"><span class="stat-val">' + val + '</span><span class="stat-label">' + label + '</span></div>';
+}
+
+render();
+</script>
+</body>
+</html>
